@@ -6,6 +6,7 @@ import Signin from "./Components/pages/Signin";
 import Dashboard from "./Components/pages/Dashboard";
 
 function App() {
+    console.log("env:", import.meta.env);
     return (
         <Box>
             <Routes>
