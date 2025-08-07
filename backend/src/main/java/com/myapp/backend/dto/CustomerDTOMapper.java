@@ -1,5 +1,6 @@
-package com.amigoscode.customer;
+package com.myapp.backend.dto;
 
+import com.myapp.backend.entity.Customer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,11 @@ public class CustomerDTOMapper implements Function<Customer, CustomerDTO> {
                 customer.getEmail(),
                 customer.getGender(),
                 customer.getAge(),
+                customer.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()),
+                customer.getUsername(),
                 customer.getProfileImageId()
         );
     }

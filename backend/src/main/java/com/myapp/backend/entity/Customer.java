@@ -1,6 +1,11 @@
 package com.myapp.backend.entity;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(
@@ -16,7 +21,7 @@ import jakarta.persistence.*;
                 )
         }
 )
-public class Customer {
+public class Customer implements UserDetails {
     @Id
     @SequenceGenerator(
             name = "customer_id_seq",
@@ -70,6 +75,14 @@ public class Customer {
         this.profileImageId = profileImageId;
     }
 
+    public Customer(String name, String email, String password, Integer age, Gender gender) {
+        this.name = name;
+        this.email = email;
+        this.age = age;
+        this.gender = gender;
+        this.password = password;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -110,8 +123,38 @@ public class Customer {
         this.gender = gender;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 
     public void setPassword(String password) {

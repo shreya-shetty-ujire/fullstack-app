@@ -1,4 +1,6 @@
-package com.amigoscode.customer;
+package com.myapp.backend.dto;
+
+import com.myapp.backend.entity.Gender;
 
 import java.util.List;
 
@@ -8,6 +10,8 @@ public record CustomerDTO(
         String email,
         Gender gender,
         Integer age,
+        List<String> roles,
+        String username,
         String profileImageId
 ) {
 
