@@ -1,10 +1,15 @@
-import { Flex, Text, HStack, Avatar } from "@chakra-ui/react";
+import { Flex, Text, HStack, Avatar, Button } from "@chakra-ui/react";
+import {useAuth} from "../context/AuthContext.jsx";
+import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 const Topbar = () => {
-    const user = {
-        email: "john.doe@example.com",
-        role: "Admin",
-    };
+  const {customer }= useAuth();
+  const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log("🔐 Logged-in Customer Object:", customer);
+    }, [customer]);
 
     return (
         <Flex
@@ -17,10 +22,10 @@ const Topbar = () => {
             borderBottom="1px solid #e2e8f0"
         >
             <HStack spacing={4}>
-                <Text fontSize="sm">{user.email}</Text>
-                <Text fontSize="sm" color="gray.500">({user.role})</Text>
-                <Avatar size="sm" name={user.email} />
+                <Text fontWeight="bold" fontSize="x-lg">{customer?.name}</Text>
+                <Avatar size="sm" name={customer?.username} />
             </HStack>
+
         </Flex>
     );
 };

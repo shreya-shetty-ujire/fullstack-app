@@ -2,10 +2,24 @@ import { Box, Flex, Grid, useBreakpointValue } from "@chakra-ui/react";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import CustomerCard from "../CustomerCard";
-import customers from "../data/mockCustomers";
+import { useAuth } from "../../context/AuthContext";
+import { getCustomers } from "../../api/client.js";
+import {useEffect, useState} from "react";
 
 const Dashboard = () => {
     const columns = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4, xl: 5 });
+    const {logOut} = useAuth();
+    const [customers, setCustomers] = useState([]);
+
+    useEffect(()=>{
+        getCustomers()
+            .then(res=>{
+                setCustomers(res.data);
+            })
+            .catch(err=>{
+                console.error("Failed to fetch customers", err);
+            });
+    }, []);
 
     return (
         <Flex h="100vh" bg="gray.50">

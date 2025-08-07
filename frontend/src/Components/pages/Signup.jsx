@@ -10,83 +10,42 @@ import {
     FormControl,
     FormLabel,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import {useAuth} from "../../context/AuthContext.jsx";
+import CreateCustomerForm from "../CreateCustomerForm.jsx";
 
 const Signup = () => {
+    const {customer, setCustomerFromToken} = useAuth();
     const navigate = useNavigate();
-    const [form, setForm] = useState({
-        name: "",
-        email: "",
-        password: "",
-    });
 
-    const handleChange = (e) => {
-        setForm((prev) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-        }));
-    };
+    useEffect(()=>{
+        if(customer){
+            navigate("/");
+        }
+    },[customer, navigate]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        alert(`Signed up as: ${form.name}`);
-        navigate("/dashboard/customers");
-    };
 
     return (
         <Stack minH="100vh" direction={{ base: "column", md: "row" }}>
-            {/* Left side */}
             <Flex p={8} flex={1} align="center" justify="center">
                 <Stack spacing={4} w="full" maxW="md">
                     <Image
                         src="/assets/logo3.png"
                         boxSize="200px"
-                        alt="DevSphere Logo"
+                        alt="Logo"
                         alignSelf="center"
                     />
-                    <Heading fontSize="2xl" textAlign="center">
+                    <Heading fontSize="2xl" mb={4} textAlign="center">
                         Register for an account
                     </Heading>
-
-                    <form onSubmit={handleSubmit}>
-                        <FormControl id="name" mb={4} isRequired>
-                            <FormLabel>Name</FormLabel>
-                            <Input
-                                name="name"
-                                value={form.name}
-                                onChange={handleChange}
-                                placeholder="Your name"
-                            />
-                        </FormControl>
-
-                        <FormControl id="email" mb={4} isRequired>
-                            <FormLabel>Email address</FormLabel>
-                            <Input
-                                type="email"
-                                name="email"
-                                value={form.email}
-                                onChange={handleChange}
-                                placeholder="you@example.com"
-                            />
-                        </FormControl>
-
-                        <FormControl id="password" mb={6} isRequired>
-                            <FormLabel>Password</FormLabel>
-                            <Input
-                                type="password"
-                                name="password"
-                                value={form.password}
-                                onChange={handleChange}
-                                placeholder="********"
-                            />
-                        </FormControl>
-
-                        <Button type="submit" colorScheme="blue" width="full">
-                            Register
-                        </Button>
-                    </form>
-
+                    <CreateCustomerForm
+                        onSuccess={(token) => {
+                            localStorage.setItem("token", token);
+                            setCustomerFromToken(token);
+                            navigate("/");
+                        }}
+                    />
                     <Text textAlign="center">
                         Already have an account?{" "}
                         <Link color="blue.500" href="/">
@@ -96,7 +55,6 @@ const Signup = () => {
                 </Stack>
             </Flex>
 
-            {/* Right side banner */}
             <Flex
                 flex={1}
                 p={10}
@@ -106,7 +64,9 @@ const Signup = () => {
                 bgGradient="linear(to-r, blue.600, purple.600)"
                 color="white"
             >
-
+                <Text fontSize="6xl" fontWeight="bold" mb={4} textAlign="center">
+                    Customer Portal
+                </Text>
 
             </Flex>
         </Stack>
