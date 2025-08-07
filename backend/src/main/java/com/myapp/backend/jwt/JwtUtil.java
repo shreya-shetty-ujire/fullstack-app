@@ -37,7 +37,7 @@ public class JwtUtil {
     public String issueToken(
             String subject,
             Map<String, Object> claims) {
-        String token = Jwts
+        return Jwts
                 .builder()
                 .setClaims(claims)
                 .setSubject(subject)
@@ -49,7 +49,6 @@ public class JwtUtil {
                 )
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-        return token;
     }
 
     public String getSubject(String token) {
@@ -57,13 +56,12 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token) {
-        Claims claims = Jwts
+        return Jwts
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims;
     }
 
     private Key getSigningKey() {

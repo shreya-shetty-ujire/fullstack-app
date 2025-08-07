@@ -1,6 +1,6 @@
 package com.myapp.backend.SecurityConfig;
 
-import com.myapp.backend.entity.Customer;
+
 import com.myapp.backend.repository.CustomerRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
