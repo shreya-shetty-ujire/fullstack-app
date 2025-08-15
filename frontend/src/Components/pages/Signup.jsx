@@ -13,7 +13,7 @@ import {
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "../../context/AuthContext.jsx";
-import CreateCustomerForm from "../CreateCustomerForm.jsx";
+import CreateCustomerForm from "../Customer/CreateCustomerForm.jsx";
 
 const Signup = () => {
     const {customer, setCustomerFromToken} = useAuth();
