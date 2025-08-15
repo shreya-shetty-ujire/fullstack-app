@@ -14,9 +14,9 @@ import {
     AlertDialogOverlay,
 } from "@chakra-ui/react";
 import UpdateCustomerDrawer from "./UpdateCustomerDrawer.jsx";
-import {customerProfilePictureUrl, fetchCustomerProfilePicture} from "../../api/client.js";
+import { fetchCustomerProfilePicture} from "../../api/client.js";
 
-const CustomerCard = ({ customer, fetchCustomers, handleDelete, updateCustomerInState }) => {
+const CustomerCard = ({ customer, handleDelete, updateCustomerInState, role }) => {
     const [isOpen, setIsOpen] = useState(false);
     const cancelRef = useRef();
 
@@ -77,24 +77,28 @@ const CustomerCard = ({ customer, fetchCustomers, handleDelete, updateCustomerIn
                 </HStack>
 
                 <HStack spacing={16} pt={4}>
-                    <UpdateCustomerDrawer
-                        initialValues={{
-                            name: customer.name,
-                            email: customer.email,
-                            age: customer.age,
-                        }}
-                        customerId={customer.id}
-                        updateCustomerInState={updateCustomerInState}
-                    />
-                    <Button
-                        bg="red.400"
-                        _hover={{ bg: "red.500" }}
-                        color="white"
-                        size="md"
-                        onClick={() => setIsOpen(true)}
-                    >
-                        Delete
-                    </Button>
+                    {role?.includes("ROLE_ADMIN") && (
+                        <>
+                            <UpdateCustomerDrawer
+                                initialValues={{
+                                    name: customer.name,
+                                    email: customer.email,
+                                    age: customer.age,
+                                }}
+                                customerId={customer.id}
+                                updateCustomerInState={updateCustomerInState}
+                            />
+                            <Button
+                                bg="red.400"
+                                _hover={{ bg: "red.500" }}
+                                color="white"
+                                size="md"
+                                onClick={() => setIsOpen(true)}
+                            >
+                                Delete
+                            </Button>
+                        </>
+                    )}
                 </HStack>
             </VStack>
 
