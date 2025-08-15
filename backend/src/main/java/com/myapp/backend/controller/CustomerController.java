@@ -7,8 +7,10 @@ import com.myapp.backend.dto.CustomerUpdateRequest;
 import com.myapp.backend.jwt.JwtUtil;
 import com.myapp.backend.service.CustomerService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -65,6 +67,29 @@ public class CustomerController {
         String jwt = token.replace("Bearer ", "");
         String email = jwtUtil.getSubject(jwt);
         return customerService.getCustomerByEmail(email);
+    }
+
+    @PostMapping(
+            value = "{customerId}/profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public void uploadCustomerProfileImage(
+            @PathVariable("customerId") Integer customerId,
+            @RequestParam("file") MultipartFile file) {
+        System.out.println("File: " + file.getOriginalFilename() + ", size=" + file.getSize());
+        customerService.uploadCustomerProfileImage(customerId, file);
+    }
+
+    @GetMapping(
+            value = "{customerId}/profile-image"
+    )
+    public ResponseEntity<byte[]> getCustomerProfileImage(@PathVariable Integer customerId) {
+        byte[] image = customerService.getCustomerProfileImage(customerId);
+
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", "image/*")
+                .body(image);
     }
 
 }

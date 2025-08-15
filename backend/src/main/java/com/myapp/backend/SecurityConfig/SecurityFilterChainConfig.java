@@ -40,6 +40,9 @@ public class SecurityFilterChainConfig {
                         .requestMatchers(HttpMethod.POST, "/api/customers", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/ping", "/api/customers/*/profile-image").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/customers/**").hasAnyRole("USER","ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

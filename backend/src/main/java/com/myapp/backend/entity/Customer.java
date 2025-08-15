@@ -2,10 +2,13 @@ package com.myapp.backend.entity;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(
@@ -61,6 +64,10 @@ public class Customer implements UserDetails {
             unique = true
     )
     private String profileImageId;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set <Role> roles = new HashSet <>();
 
     public Customer() {
     }
@@ -123,10 +130,6 @@ public class Customer implements UserDetails {
         this.gender = gender;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
 
     public String getPassword() {
         return password;
@@ -167,5 +170,20 @@ public class Customer implements UserDetails {
 
     public void setProfileImageId(String profileImageId) {
         this.profileImageId = profileImageId;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toList());
+    }
+
+    public Set <Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set <Role> roles) {
+        this.roles = roles;
     }
 }
