@@ -76,7 +76,6 @@ public class CustomerController {
     public void uploadCustomerProfileImage(
             @PathVariable("customerId") Integer customerId,
             @RequestParam("file") MultipartFile file) {
-        System.out.println("File: " + file.getOriginalFilename() + ", size=" + file.getSize());
         customerService.uploadCustomerProfileImage(customerId, file);
     }
 

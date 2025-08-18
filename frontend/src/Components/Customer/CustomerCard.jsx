@@ -33,7 +33,10 @@ const CustomerCard = ({ customer, handleDelete, updateCustomerInState, role }) =
             .then(url => {
                 if (isMounted) setProfileUrl(url);
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(err);
+                if (isMounted) setProfileUrl("/default-avatar.png"); // default fallback image
+            });
 
         return () => {
             isMounted = false;

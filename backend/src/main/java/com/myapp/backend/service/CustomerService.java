@@ -9,6 +9,8 @@ import com.myapp.backend.dto.CustomerUpdateRequest;
 import com.myapp.backend.entity.Customer;
 import com.myapp.backend.entity.Role;
 import com.myapp.backend.repository.CustomerRepository;
+import com.myapp.backend.s3.S3Buckets;
+import com.myapp.backend.s3.S3Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,12 +30,16 @@ public class CustomerService {
     private final CustomerRepository repository;
     private final CustomerDTOMapper customerDtoMapper;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
+    private final S3Buckets s3Buckets;
 
     public CustomerService(CustomerRepository repository,
-                           CustomerDTOMapper customerDtoMapper, PasswordEncoder passwordEncoder) {
+                           CustomerDTOMapper customerDtoMapper, PasswordEncoder passwordEncoder, S3Service s3Service,S3Buckets s3Buckets) {
         this.repository = repository;
         this.customerDtoMapper = customerDtoMapper;
         this.passwordEncoder = passwordEncoder;
+        this.s3Service = s3Service;
+        this.s3Buckets = s3Buckets;
     }
     @Value("${app.upload.dir:${user.home}/myapp-uploads}")
     private String uploadBaseDir;
@@ -108,86 +114,46 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
     }
 
-    //    public void uploadCustomerProfileImage(Integer customerId,
-//                                           MultipartFile file) {
-//        checkIfCustomerExistsOrThrow(customerId);
-//        String profileImageId = UUID.randomUUID().toString();
-//        try {
-//            s3Service.putObject(
-//                    s3Buckets.getCustomer(),
-//                    "profile-images/%s/%s".formatted(customerId, profileImageId),
-//                    file.getBytes()
-//            );
-//        } catch (IOException e) {
-//            throw new RuntimeException("failed to upload profile image", e);
-//        }
-//        customerDao.updateCustomerProfileImageId(profileImageId, customerId);
-//    }
-//        private void checkIfCustomerExistsOrThrow(Integer customerId) {
-//        if (!repository.existsById(customerId)) {
-//            throw new ResourceNotFoundException(
-//                    "Customer with id [%s] not found".formatted(customerId)
-//            );
-//        }
-//    }
     @PreAuthorize("hasRole('ADMIN') or #customerId == authentication.principal.id")
-    public void uploadCustomerProfileImage(Integer customerId, MultipartFile file) {
-        Customer customer = repository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Customer with id [%s] not found".formatted(customerId)
-                ));
-
-        // Build absolute path
-        File dir = new File(uploadBaseDir, "profile-images/" + customerId);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw new RuntimeException("Failed to create upload directory: " + dir.getAbsolutePath());
-            }
-        }
-
-        String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        File destinationFile = new File(dir, filename);
-
+        public void uploadCustomerProfileImage(Integer customerId,
+                                           MultipartFile file) {
+        checkIfCustomerExistsOrThrow(customerId);
+        String profileImageId = UUID.randomUUID().toString();
         try {
-            file.transferTo(destinationFile);
+            s3Service.putObject(
+                    s3Buckets.getCustomer(),
+                    "profile-images/%s/%s".formatted(customerId, profileImageId),
+                    file.getBytes()
+            );
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save profile image", e);
+            throw new RuntimeException("failed to upload profile image", e);
         }
-        customer.setProfileImageId(filename);
-        repository.save(customer);
+        repository.updateCustomerProfileImageId(profileImageId, customerId);
     }
-
-    private File getFileOrNull(Integer customerId, Customer customer) {
-        if (customer.getProfileImageId() == null || customer.getProfileImageId().isBlank()) {
-            return null;
+        private void checkIfCustomerExistsOrThrow(Integer customerId) {
+        if (!repository.existsById(customerId)) {
+            throw new ResourceNotFoundException(
+                    "Customer with id [%s] not found".formatted(customerId)
+            );
         }
-
-        File file = new File(uploadBaseDir + "/profile-images/" + customerId, customer.getProfileImageId());
-        if (!file.exists()) {
-            return null;
-        }
-
-        return file;
     }
-
-
 
     public byte[] getCustomerProfileImage(Integer customerId) {
-        Customer customer = repository.findById(customerId)
+        var customer = repository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Customer with id [%s] not found".formatted(customerId)
+                        "customer with id [%s] not found".formatted(customerId)
                 ));
 
-        File file = getFileOrNull(customerId, customer);
-        if (file == null) {
-            return null; // frontend can check for null
+        if (customer.getProfileImageId() == null || customer.getProfileImageId().isBlank()) {
+            throw new ResourceNotFoundException(
+                    "Profile image for customer [%s] not found".formatted(customerId)
+            );
         }
 
-        try {
-            return Files.readAllBytes(file.toPath());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read profile image", e);
-        }
+        return s3Service.getObject(
+                s3Buckets.getCustomer(),
+                "profile-images/%s/%s".formatted(customerId, customer.getProfileImageId())
+        );
     }
 
 
