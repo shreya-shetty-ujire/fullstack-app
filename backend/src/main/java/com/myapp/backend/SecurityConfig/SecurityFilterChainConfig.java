@@ -35,7 +35,7 @@ public class SecurityFilterChainConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> {}) // default CORS config
+                .cors()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/customers", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/ping", "/api/customers/*/profile-image").permitAll()

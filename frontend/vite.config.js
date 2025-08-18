@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,       // makes it accessible from host machine / containers
+    host: true,
     port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8088', // backend Docker container port
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
-  // For React Router
   build: {
     outDir: 'dist',
   },
